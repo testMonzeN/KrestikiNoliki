@@ -1,7 +1,7 @@
-import pygame, time
+import pygame as pg
 
-# Инициализация Pygame
-pygame.init()
+# Инициализация pg
+pg.init()
 
 # Определение цветов
 BLACK = (0, 0, 0)
@@ -17,8 +17,8 @@ board = [[0, 0, 0],
          [0, 0, 0]]
 
 # Инициализация окна
-window = pygame.display.set_mode(WINDOW_SIZE)
-pygame.display.set_caption("Крестики нолики")
+window = pg.display.set_mode(WINDOW_SIZE)
+pg.display.set_caption("1488")
 
 
 
@@ -27,21 +27,21 @@ def draw_board():
     window.fill(BLACK)
     
     # Отрисовка вертикальных линий
-    pygame.draw.line(window, WHITE, (100, 0), (100, 300), 2)
-    pygame.draw.line(window, WHITE, (200, 0), (200, 300), 2)
+    pg.draw.line(window, WHITE, (100, 0), (100, 300), 2)
+    pg.draw.line(window, WHITE, (200, 0), (200, 300), 2)
     
     # Отрисовка горизонтальных линий
-    pygame.draw.line(window, WHITE, (0, 100), (300, 100), 2)
-    pygame.draw.line(window, WHITE, (0, 200), (300, 200), 2)
+    pg.draw.line(window, WHITE, (0, 100), (300, 100), 2)
+    pg.draw.line(window, WHITE, (0, 200), (300, 200), 2)
     
     # Отрисовка крестиков и ноликов
     for i in range(3):
         for j in range(3):
             if board[i][j] == 1:
-                pygame.draw.line(window, BLUE, (j * 100 + 15, i * 100 + 15), (j * 100 + 85, i * 100 + 85), 2)
-                pygame.draw.line(window, BLUE, (j * 100 + 15, i * 100 + 85), (j * 100 + 85, i * 100 + 15), 2)
+                pg.draw.line(window, BLUE, (j * 100 + 15, i * 100 + 15), (j * 100 + 85, i * 100 + 85), 2)
+                pg.draw.line(window, BLUE, (j * 100 + 15, i * 100 + 85), (j * 100 + 85, i * 100 + 15), 2)
             elif board[i][j] == -1:
-                pygame.draw.circle(window, BLUE, (j * 100 + 50, i * 100 + 50), 35, 2)
+                pg.draw.circle(window, BLUE, (j * 100 + 50, i * 100 + 50), 35, 2)
 
 # Функция для проверки окончания игры
 def is_game_over():
@@ -101,7 +101,7 @@ def make_bot_move():
     if best_move:
         board[best_move[0]][best_move[1]] = 1
 
-# Функция-евристика для оценки ходов
+# Функция для оценки ходов
 def evaluate():
     # Проверка горизонтальных и вертикальных комбинаций
     for i in range(3):
@@ -163,7 +163,7 @@ def minimax(board, depth, is_maximizing):
         
         return best_score
 
-def result():
+def result(): # бета версия повтора игры
     global board, win
     board = [[0, 0, 0],
              [0, 0, 0],
@@ -172,22 +172,20 @@ def result():
     win = [0, 0]
     
     
-    
+# сама игра
 def main():
-    global running, player_turn, stopGame
+    global running, player_turn
     
     while running:
-        for event in pygame.event.get():
+        for event in pg.event.get():
 
-            if event.type == pygame.QUIT:
+            if event.type == pg.QUIT: # выход 
                 running = False
-            elif event.type == pygame.K_TAB:
-                result()
-                pygame.display.update()
+                pg.display.update()
 
-            elif event.type == pygame.MOUSEBUTTONDOWN and player_turn and is_game_over() == False:
+            elif event.type == pg.MOUSEBUTTONDOWN and player_turn and is_game_over() == False: 
                 # Ход игрока
-                x, y = pygame.mouse.get_pos()
+                x, y = pg.mouse.get_pos()
                 row = y // 100
                 col = x // 100
 
@@ -207,14 +205,14 @@ def main():
         draw_board()
 
         # Обновление окна
-        pygame.display.update()
+        pg.display.update()
+
 
 running = True
 player_turn = True
-stopGame = True
 
 main()
 
     
     
-pygame.quit()
+pg.quit()
