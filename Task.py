@@ -1,3 +1,5 @@
+# TODO = сделать reset и wintab
+
 import pygame as pg
 
 # Инициализация pg
@@ -11,6 +13,9 @@ BLUE = (0, 0, 255)
 # Определение размера окна
 WINDOW_SIZE = (300, 300)
 win = [0, 0]
+
+player = False
+bot = False
 # Создание игрового поля
 board = [[0, 0, 0],
          [0, 0, 0],
@@ -43,38 +48,40 @@ def draw_board():
             elif board[i][j] == -1:
                 pg.draw.circle(window, BLUE, (j * 100 + 50, i * 100 + 50), 35, 2)
 
-# Функция для проверки окончания игры
-def is_game_over():
-    global win
-    # Проверка горизонтальных и вертикальных комбинаций
+
+def check():
     for i in range(3):
         if sum(board[i]) == 3:  
-            win[0] += 1
-            return True
+            return 3
         elif sum(board[i]) == -3:
-            win[1] += 1
-            return True
+            return -3
         elif sum(board[j][i] for j in range(3)) == 3:
-            win[0] += 1
-            return True        
+            return 3     
         elif sum(board[j][i] for j in range(3)) == -3:
-            win[1] += 1
-            return True
+            return -3
     
-    # Проверка диагональных комбинаций
     if board[0][0] + board[1][1] + board[2][2] == 3 or board[0][2] + board[1][1] + board[2][0] == 3:
-        win[0] += 1
-        return True
+        return 3
     
     if board[0][0] + board[1][1] + board[2][2] == -3 or board[0][2] + board[1][1] + board[2][0] == -3:
-        win[1] += 1
-        return True    
-    
+        return 3
+
     # Проверка на ничью
     if all(board[i][j] != 0 for i in range(3) for j in range(3)):
-        win[0] += 1
-        win[1] += 1
         return True
+
+# Функция для проверки окончания игры
+def is_game_over():
+    global win, running, bot, player
+    if check() == 3:
+        win[1] += 0.5
+        player = True
+        running = False
+    elif check() == -3:
+        win[0] += 0.5
+        bot = True
+        running = False
+        
 
     
     return False
@@ -103,15 +110,16 @@ def make_bot_move():
 
 # Функция для оценки ходов
 def evaluate():
+    # 10 <=> выгодно, -10 <=> не выгодно, 0 <=> нейтрально 
     # Проверка горизонтальных и вертикальных комбинаций
     for i in range(3):
-           if sum(board[i]) == 3:
+           if sum(board[i]) == 3: 
                return 10
-           if sum(board[j][i] for j in range(3)) == 3:
+           if sum(board[j][i] for j in range(3)) == 3: 
                return 10
-           if sum(board[i]) == -3:
+           if sum(board[i]) == -3: 
                return -10
-           if sum(board[j][i] for j in range(3)) == -3:
+           if sum(board[j][i] for j in range(3)) == -3: 
                return -10
 
     # Проверка диагональных комбинаций
@@ -163,25 +171,55 @@ def minimax(board, depth, is_maximizing):
         
         return best_score
 
-def result(): # бета версия повтора игры
-    global board, win
+
+def reset(): # бета версия повтора игры
+    global board, running, player_turn, bot, player
     board = [[0, 0, 0],
              [0, 0, 0],
              [0, 0, 0]]
     
-    win = [0, 0]
+    running = True
+    player_turn = True
+
+    player = False
+    bot = False
+
+    pg.display.update()
+
+def winTab():
+    global win, bot, player
     
-    
+    message = pg.font.Font(None, 20)
+    text2 = message.render('Ваш счет: '+str(int(win[0]))+' : '+ str(int(win[1]))+ '. Нажмите ПРОБЕЛ!!!',True, (180, 0, 0))
+    window.blit(text2, (10, 10))
+    pg.display.update()
+
+    gameContinue=True
+    while gameContinue==True:
+        for i in pg.event.get():
+            if i.type == pg.QUIT:
+                pg.quit()
+                exit()
+            elif i.type == pg.KEYDOWN:
+                if i.key==pg.K_ESCAPE:
+                    pg.quit()
+                    exit()
+                elif i.key==pg.K_SPACE:
+                    gameContinue=False
+
+
+
+
+
 # сама игра
 def main():
-    global running, player_turn
+    global running, player_turn, win
     
     while running:
         for event in pg.event.get():
 
             if event.type == pg.QUIT: # выход 
-                running = False
-                pg.display.update()
+                exit()
 
             elif event.type == pg.MOUSEBUTTONDOWN and player_turn and is_game_over() == False: 
                 # Ход игрока
@@ -196,10 +234,9 @@ def main():
                 if not is_game_over():
                     # Ход бота
                     make_bot_move()
-                    player_turn = True
-            else:
-                pass
-        
+                    player_turn = True 
+
+
         
         # Отрисовка игрового поля
         draw_board()
@@ -208,11 +245,17 @@ def main():
         pg.display.update()
 
 
+    print(win)
+
+
+
 running = True
 player_turn = True
 
-main()
-
-    
+while 1:
+    main()
+    winTab()
+    reset()
+       
     
 pg.quit()
