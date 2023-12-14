@@ -1,4 +1,4 @@
-# TODO = сделать reset и wintab
+# TODO сделать reset и wintab
 
 import pygame as pg
 
@@ -12,10 +12,11 @@ BLUE = (0, 0, 255)
 
 # Определение размера окна
 WINDOW_SIZE = (300, 300)
-win = [0, 0]
+win = [0, 0] # игрок / бот
 
-player = False
-bot = False
+player = False # выйграл ли игрок?
+bot = False # выйграл ли бот?
+draw = False # ничья ли? 
 # Создание игрового поля
 board = [[0, 0, 0],
          [0, 0, 0],
@@ -23,7 +24,7 @@ board = [[0, 0, 0],
 
 # Инициализация окна
 window = pg.display.set_mode(WINDOW_SIZE)
-pg.display.set_caption("1488")
+pg.display.set_caption("1488") # ✙
 
 
 
@@ -48,7 +49,7 @@ def draw_board():
             elif board[i][j] == -1:
                 pg.draw.circle(window, BLUE, (j * 100 + 50, i * 100 + 50), 35, 2)
 
-
+# проверка на победу, где 3 - победа игрока, -3 - бот
 def check():
     for i in range(3):
         if sum(board[i]) == 3:  
@@ -72,16 +73,23 @@ def check():
 
 # Функция для проверки окончания игры
 def is_game_over():
-    global win, running, bot, player
-    if check() == 3:
+    global win, running, bot, player, draw
+    if check() == 3: # Если винер игрок
         win[1] += 0.5
         player = True
         running = False
-    elif check() == -3:
+        return True
+    elif check() == -3: # Если винер бот
         win[0] += 0.5
         bot = True
         running = False
-        
+        return True
+    elif check() == 0: # если ничья, но тут есть баг. Пока что в пролете(но код работает)
+        win[0] += 1
+        win[1] += 1
+        draw = True
+        running = False
+        return True
 
     
     return False
@@ -94,7 +102,7 @@ def make_bot_move():
     for i in range(3):
         for j in range(3):
             if board[i][j] == 0:
-                # Имитация хода бота
+                # Ну допустим сюда
                 board[i][j] = 1
                 score = minimax(board, 0, False)
                 board[i][j] = 0
@@ -172,8 +180,8 @@ def minimax(board, depth, is_maximizing):
         return best_score
 
 
-def reset(): # бета версия повтора игры
-    global board, running, player_turn, bot, player
+def reset(): # обнуление нужных переменных
+    global board, running, player_turn, bot, player, draw
     board = [[0, 0, 0],
              [0, 0, 0],
              [0, 0, 0]]
@@ -183,11 +191,12 @@ def reset(): # бета версия повтора игры
 
     player = False
     bot = False
+    draw = False
 
     pg.display.update()
 
-def winTab():
-    global win, bot, player
+def winTab(): # вывод на экран счет игры
+    global win, bot, player, draw
     
     message = pg.font.Font(None, 20)
     text2 = message.render('Ваш счет: '+str(int(win[0]))+' : '+ str(int(win[1]))+ '. Нажмите ПРОБЕЛ!!!',True, (180, 0, 0))
@@ -211,7 +220,7 @@ def winTab():
 
 
 
-# сама игра
+# объединение говна в воедино
 def main():
     global running, player_turn, win
     
@@ -249,9 +258,10 @@ def main():
 
 
 
-running = True
-player_turn = True
+running = True # игра идет ли? 
+player_turn = True # ХОД ИГРОКА ЛИ? 
 
+# само говно 
 while 1:
     main()
     winTab()
