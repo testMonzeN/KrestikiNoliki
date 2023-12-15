@@ -75,12 +75,12 @@ def check():
 def is_game_over():
     global win, running, bot, player, draw
     if check() == 3: # Если винер игрок
-        win[1] += 0.5
+        win[1] += 1
         player = True
         running = False
         return True
     elif check() == -3: # Если винер бот
-        win[0] += 0.5
+        win[0] += 1
         bot = True
         running = False
         return True
@@ -254,10 +254,6 @@ def main():
         pg.display.update()
 
 
-    print(win)
-
-
-
 running = True # игра идет ли? 
 player_turn = True # ХОД ИГРОКА ЛИ? 
 
@@ -266,6 +262,8 @@ while 1:
     main()
     winTab()
     reset()
+    print(win)
+
        
     
 pg.quit()
